@@ -43,6 +43,7 @@ function navShowNewForm(evt) {
 }
 $body.on('click', '#nav-submit', navShowNewForm);
 
+// When click on #nav-favorites hide all page components and putFavoritesOnpage
 function navFavorites(evt) {
   console.debug('navFavorites');
   hidePageComponents();

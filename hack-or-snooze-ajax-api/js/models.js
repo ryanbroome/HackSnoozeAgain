@@ -170,6 +170,7 @@ class User {
    */
 
   static async loginViaStoredCredentials(token, username) {
+    console.debug('loginViaStoredCredentials');
     try {
       const response = await axios({
         url: `${BASE_URL}/users/${username}`,
@@ -202,7 +203,20 @@ class User {
       method: 'POST',
       data: { token: currentUser.loginToken },
     });
-    console.log('response ==>>', response, 'currentUser.favorites==>>', currentUser.favorites);
+  }
+  // **When given a storyid it will add story to the currentUser.favorites
+  async addFavoriteStoryToUserFavorites(storyId) {
+    console.debug('addFavoriteStoryToUserFavorites');
+    const res = await axios({
+      url: `${BASE_URL}/stories/${storyId}`,
+      method: 'GET',
+    });
+    currentUser.favorites.unshift(new Story(res.data.story));
+  }
+  // When given a storyId will remove story from currentUser.favorites
+  async removeFavoriteStoryToUserFavorites(storyId) {
+    console.debug('removeFavoriteStoryToUserFavorites');
+    currentUser.favorites = currentUser.favorites.filter((tempFav) => tempFav.storyId !== storyId);
   }
   // **This function when called and given a storyId will make an remove favorite request to the api for the currentUser
   async removeFavoriteStoryToApi(storyId) {
@@ -212,32 +226,26 @@ class User {
       method: 'DELETE',
       data: { token: currentUser.loginToken },
     });
-    console.log('response ==>>', response, 'currentUser.favorites==>>', currentUser.favorites);
   }
   // ** This function when called and given a storyId will make an delete request to the api for the currentUser
   async deleteStoryToApi(storyId) {
     console.debug('deleteStoryToApi');
-    const response = await axios.delete(`${BASE_URL}/stories/${storyId}`, { data: { token: currentUser.loginToken } });
-    $(`#${storyId}`).remove();
+    try {
+      const response = await axios.delete(`${BASE_URL}/stories/${storyId}`, { data: { token: currentUser.loginToken } });
+      $(`#${storyId}`).remove();
+    } catch (e) {
+      alert('Only the creator may destroy');
+    }
   }
   // ** This function when called and given a storyId will check to see if that storyId and the story it belongs to is currently in the currentUser.favorites array at all, if even one of the stories matches it will return true
   async isFavorite(storyId) {
-    console.debug('isFavorite');
-    return currentUser.favorites.some(function (fav) {
-      return fav.storyId === storyId ? true : false;
-    });
+    for (let favorite of currentUser.favorites) {
+      return favorite.storyId === storyId;
+    }
+    // another way, but returns true if it is a favorite anywhere in the favorites
+    // return currentUser.favorites.some(function (fav) {
+    //   return fav.storyId === storyId ? true : false;
+    // });
   }
 }
-
-// END OF USER CLASS
-
-//  this class is to let me know i'm hooked up
-class Bubble {
-  constructor(tempX, tempY) {
-    this.x = tempX;
-    this.y = tempY;
-  }
-  printBubble(x, y) {
-    console.log('x == >>', this.x, 'y == >>', this.y);
-  }
-}
+// CURRENT

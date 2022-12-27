@@ -114,10 +114,3 @@ function updateUIOnUserLogin() {
 
   updateNavOnLogin();
 }
-
-function displayFavoriteImage() {
-  const favoriteIds = currentUser.favorites.map(function (favStory) {
-    return favStory.storyId;
-  });
-  return favoriteIds;
-}
